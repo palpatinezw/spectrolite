@@ -1,4 +1,4 @@
-# Consignes d'utilisation
+# Consignes d'utilisation (version ancienne)
 
 Lancer l'application d'analyse avec `main.py`. La bande d'extraction de l'image par defaut est mise à `bande = (40, 100)`. Pour adjuster la bande, utiliser `adjusterBande()`
 
