@@ -1,0 +1,27 @@
+pyserver/__pycache__
+pyserver/.venv
+
+# Logs
+spectro_cli/logs
+spectro_cli/*.log
+spectro_cli/npm-debug.log*
+spectro_cli/yarn-debug.log*
+spectro_cli/yarn-error.log*
+spectro_cli/pnpm-debug.log*
+spectro_cli/lerna-debug.log*
+
+spectro_cli/node_modules
+spectro_cli/dist
+spectro_cli/dist-ssr
+spectro_cli/*.local
+
+# Editor directories and files
+spectro_cli/.vscode/*
+spectro_cli/!.vscode/extensions.json
+spectro_cli/.idea
+spectro_cli/.DS_Store
+spectro_cli/*.suo
+spectro_cli/*.ntvs*
+spectro_cli/*.njsproj
+spectro_cli/*.sln
+spectro_cli/*.sw?
