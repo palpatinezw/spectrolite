@@ -2,26 +2,26 @@ pyserver/__pycache__
 pyserver/.venv
 
 # Logs
-spectro_cli/logs
-spectro_cli/*.log
-spectro_cli/npm-debug.log*
-spectro_cli/yarn-debug.log*
-spectro_cli/yarn-error.log*
-spectro_cli/pnpm-debug.log*
-spectro_cli/lerna-debug.log*
+spectro-cli/logs
+spectro-cli/*.log
+spectro-cli/npm-debug.log*
+spectro-cli/yarn-debug.log*
+spectro-cli/yarn-error.log*
+spectro-cli/pnpm-debug.log*
+spectro-cli/lerna-debug.log*
 
-spectro_cli/node_modules
-spectro_cli/dist
-spectro_cli/dist-ssr
-spectro_cli/*.local
+spectro-cli/node_modules
+spectro-cli/dist
+spectro-cli/dist-ssr
+spectro-cli/*.local
 
 # Editor directories and files
-spectro_cli/.vscode/*
-spectro_cli/!.vscode/extensions.json
-spectro_cli/.idea
-spectro_cli/.DS_Store
-spectro_cli/*.suo
-spectro_cli/*.ntvs*
-spectro_cli/*.njsproj
-spectro_cli/*.sln
-spectro_cli/*.sw?
+spectro-cli/.vscode/*
+spectro-cli/!.vscode/extensions.json
+spectro-cli/.idea
+spectro-cli/.DS_Store
+spectro-cli/*.suo
+spectro-cli/*.ntvs*
+spectro-cli/*.njsproj
+spectro-cli/*.sln
+spectro-cli/*.sw?
