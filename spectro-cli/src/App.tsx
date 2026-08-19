@@ -3,6 +3,9 @@ import './App.css'
 import ImageCropper from "./ImageCropper";
 import {dataURLToBlob} from "./auxiliary";
 import { getCookie, setCookie } from "./cookies";
+import Plot from "react-plotly.js";
+
+// TODO: replace all FETCH urls with env server url
 
 const App: React.FC = () => {
     const [pageNo, setPageNo] = React.useState(0);
@@ -12,8 +15,19 @@ const App: React.FC = () => {
     const [nbCalib, setNbCalib] = React.useState(3);
 
     const [calibData, setCalibData] = React.useState<{ cropData: any, img: string }[]>([]);
-    const [analyseData, setAnalyseData] = React.useState<Array<Number[]>>([]);
-    const [calibrationWavelengths, setCalibrationWavelengths] = React.useState<Number[]>([]);
+    const [analyseData, setAnalyseData] = React.useState<Array<number[]>>([]);
+    const [calibrationWavelengths, setCalibrationWavelengths] = React.useState<number[]>([]);
+    const [slope, setSlope] = React.useState<number>(0)
+    const [intercept, setIntercept] = React.useState<number>(0)
+
+    const [absorbances, setAbsorbances] = React.useState< Array<{name:string, spectre:Array<{longueur:number, absr:number}>}> >([])
+    const [blancData, setBlancData] = React.useState< number[] >([])
+    const [solutionData, setSolutionData] = React.useState< number[] >([])
+    const [solutionName, setSolutionName] = React.useState<string>("")
+
+    const pixelToLongueur = React.useCallback((pixel:number) => {
+        return slope*pixel + intercept
+    }, [slope, intercept])
 
     React.useEffect(() => {
         // Initialize calibData with empty values based on nbCalib
@@ -24,9 +38,13 @@ const App: React.FC = () => {
 
     React.useEffect(() => {
         let cxMin = getCookie("xMin");
-        let cxWidth = getCookie("xWidth");
+        let cxWidth = getCookie("xWidth")
+        let cSlope = getCookie("slope")
+        let cIntercept = getCookie("intercept")
         if (cxMin) setXMin(parseInt(cxMin));
         if (cxWidth) setXWidth(parseInt(cxWidth));
+        if (cSlope) setSlope(Number(cSlope))
+        if (cIntercept) setIntercept(Number(cIntercept))
     }, []);
 
     return (
@@ -67,7 +85,7 @@ const App: React.FC = () => {
                     {[...Array(nbCalib)].map((_, i) => (
                         <div key={i} className="mb-4 border rounded p-2 bg-gray-200">
                             <h3 className="text-xl">Calibration {i + 1}</h3>
-                            <input type="number" value={calibrationWavelengths[i]?.toString() || ""} onChange={(e) => {
+                            Longueur d'onde: <input type="number" value={calibrationWavelengths[i]?.toString() || ""} onChange={(e) => {
                                 const newWavelengths = [...calibrationWavelengths];
                                 newWavelengths[i] = parseFloat(e.target.value);
                                 setCalibrationWavelengths(newWavelengths);
@@ -77,6 +95,9 @@ const App: React.FC = () => {
                                 const newCalibData = [...calibData];
                                 newCalibData[i] = { cropData, img };
                                 setCalibData(newCalibData);
+                                const newAnalyseData = [...analyseData]
+                                newAnalyseData[i] = []
+                                setAnalyseData(newAnalyseData)
                             }} />
                             {calibData[i]?.cropData && (
                                 <div className="mt-4 rounded-lg bg-gray-100 p-4">
@@ -118,11 +139,168 @@ const App: React.FC = () => {
                         </div>
                     ))} 
 
+                    <button className="btn btn-blue mb-5" onClick={() => {
+                        fetch("http://localhost:5000/calibration", {
+                            method:"POST", 
+                            headers:{
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                intensities: analyseData[0].map((_, i) =>
+                                    analyseData.reduce((sum, row) => sum + row[i], 0)
+                                ),
+                                longueurs: calibrationWavelengths
+                            })
+                        }).then((res) => {
+                            return res.json()
+                        }).then((data) => {
+                            setSlope(data.slope)
+                            setIntercept(data.intercept)
+                            setCookie("slope", data.slope)
+                            setCookie("intercept", data.intercept)
+                        }).catch(error => console.error('Error:', error));
+                    }}>Calibrate</button>
+                    {slope != 0 && 
+                        <div className="border rounded mb-5">
+                            y = {slope} * x + {intercept}
+                        </div>
+                    }
+
+                    <hr />
+
                     <button className="btn" onClick={() => setPageNo(0)}>
                         Retour
                     </button>
                     <button className="btn btn-blue" onClick={() => setPageNo(2)}>
                         Suivant
+                    </button>
+                </div>
+            )}
+
+            {pageNo === 2 && (
+                <div className="border p-4 rounded">
+                    <h2 className="text-2xl">Analyse</h2>
+                    <div className="flex md:flex-row flex-col">
+                        <div className="flex-1">
+                            <p className="text-l">BLANC</p>
+                            <ImageCropper handleResult={(cropData, img) => {
+                                let fdata = new FormData();
+                                fdata.append('image', dataURLToBlob(img), "blanc.png");
+                                fdata.append('xMin', String(xMin));
+                                fdata.append('xWidth', String(xWidth));
+                                fdata.append('yh', String(cropData.y));
+                                fdata.append('yb', String(cropData.y + cropData.height));
+                                fetch('http://localhost:5000/analyse', {    
+                                    method: 'POST',
+                                    body: fdata
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    setBlancData(data);
+                                    console.log("New blanc data:", data);
+                                })
+                                .catch(error => console.error('Error:', error));
+                            }}/>
+                            {blancData.length > 0 && <p className="text-sm mt-2">[✓] Analysed</p>}
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-l">SOLUTION</p>
+                            <ImageCropper handleResult={(cropData, img) => {
+                                let fdata = new FormData();
+                                fdata.append('image', dataURLToBlob(img), "blanc.png");
+                                fdata.append('xMin', String(xMin));
+                                fdata.append('xWidth', String(xWidth));
+                                fdata.append('yh', String(cropData.y));
+                                fdata.append('yb', String(cropData.y + cropData.height));
+                                fetch('http://localhost:5000/analyse', {    
+                                    method: 'POST',
+                                    body: fdata
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    setSolutionData(data);
+                                    console.log("New solution data:", data);
+                                })
+                                .catch(error => console.error('Error:', error));
+                            }}/>
+                            {solutionData.length > 0 && <p className="text-sm mt-2">[✓] Analysed</p>}
+                        </div>
+                    </div>
+
+                    <input type="text" placeholder="Nom de la solution" value={solutionName} onChange={(e) => setSolutionName(e.target.value)} className="border p-1 rounded mt-2" />
+
+                    <button className="btn btn-blue mb-5 mt-5" onClick={() => {
+                        if (solutionName === "" || blancData.length === 0 || solutionData.length === 0) {
+                            alert("Veuillez remplir tous les champs avant d'analyser.");
+                            return;
+                        }
+                        let tempAbsr = [...absorbances]
+                        tempAbsr.push({
+                            name: solutionName,
+                            spectre: solutionData.map((absr, i) => ({
+                                longueur: pixelToLongueur(i),
+                                absr: -Math.log10(absr/blancData[i])
+                            }))
+                        })
+                        setAbsorbances(tempAbsr)
+                        setSolutionName("")
+                        setBlancData([])
+                        setSolutionData([])
+                        console.log("Absorbances:", tempAbsr)
+                    }}>
+                        Analyser
+                    </button>
+
+                    <hr />
+
+                    <div className="mb-5">
+                        <h2 className="text-2xl">Spectres</h2>
+                        {absorbances.map((abs, i) => (
+                            <div key={i} className="mb-4 border rounded p-2 bg-gray-200 flex justify-between items-center">
+                                <h3 className="text-xl">{abs.name}</h3>
+                                <button className="btn" onClick={() => {
+                                    const csvContent = "data:text/csv;charset=utf-8," + abs.spectre.map(e => `${e.longueur},${e.absr}`).join("\n");
+                                    const encodedUri = encodeURI(csvContent);
+                                    const link = document.createElement("a");
+                                    link.setAttribute("href", encodedUri);
+                                    link.setAttribute("download", `${abs.name}.csv`);
+                                    document.body.appendChild(link); // Required for FF
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}>
+                                    CSV
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <hr/>
+
+                    <button className="btn mt-2" onClick={() => setPageNo(1)}>
+                        Retour
+                    </button>
+                    <button className="btn btn-blue" onClick={() => setPageNo(3)}>
+                        Suivant
+                    </button>
+                </div>
+            )}
+
+            {pageNo === 3 && (
+                <div className="border p-4 rounded">
+                    <h2 className="text-2xl">Resultats</h2>
+                    <Plot
+                        data={absorbances.map(abs => ({
+                            x: abs.spectre.map(point => point.longueur),
+                            y: abs.spectre.map(point => point.absr),
+                            type: 'scatter',
+                            mode: 'lines',
+                            name: abs.name,
+                        }))}
+                        layout={{ title: 'Spectres d\'absorbance', xaxis: { title: 'Longueur d\'onde (nm)' }, yaxis: { title: 'Absorbance' } }}
+                    />
+                    <br />
+                    <button className="btn mt-2" onClick={() => setPageNo(2)}>
+                        Retour
                     </button>
                 </div>
             )}

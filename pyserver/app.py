@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from analyse_img import extraction_intensite
+from traitement import calibration
 import tempfile
 import os
 from flask_cors import CORS
@@ -54,6 +55,12 @@ def analyze_image():
         # Always delete the temporary file
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
+
+@app.route("/calibration", methods=["POST"])
+def calib():
+    data = request.get_json()
+    slope, intercept = calibration(data.get("longueurs"), data.get("intensities"))
+    return jsonify({"slope":slope.item(), "intercept":intercept.item()}), 200 #type:ignore
 
 # Start the local development server
 if __name__ == '__main__':

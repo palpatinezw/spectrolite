@@ -66,7 +66,7 @@ const ImageCropper: React.FC<{ handleResult: (cropData: CropData, img: string) =
   };
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-6">
+    <div className="p-2 w-full">
 
       {/* Image upload */}
       <div className="mb-6">
@@ -84,8 +84,8 @@ const ImageCropper: React.FC<{ handleResult: (cropData: CropData, img: string) =
           <div className="
                 mx-auto
                 h-[60vh]
-                max-h-[600px]
-                min-h-[300px]
+                max-h-[300px]
+                min-h-[100px]
                 w-full
                 max-w-[1000px]
             ">

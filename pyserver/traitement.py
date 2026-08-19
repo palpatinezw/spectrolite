@@ -12,7 +12,7 @@ def calibration(longueurs, intensites):
     n = len(longueurs)
 
     min_distance = 10
-    min_prominence = 5
+    min_prominence = 3
 
     peaks, props = find_peaks(intensites, distance=min_distance, prominence=min_prominence)
     if len(peaks) > n:
