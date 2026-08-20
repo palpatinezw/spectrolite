@@ -116,7 +116,7 @@ const App: React.FC = () => {
                                         fdata.append('xWidth', String(xWidth));
                                         fdata.append('yh', String(calibData[i].cropData.y));
                                         fdata.append('yb', String(calibData[i].cropData.y + calibData[i].cropData.height));
-                                        fetch('http://localhost:5000/analyse', {    
+                                        fetch(`${import.meta.env.VITE_SERVER_URL}/analyse`, {    
                                             method: 'POST',
                                             body: fdata
                                         })
@@ -140,7 +140,7 @@ const App: React.FC = () => {
                     ))} 
 
                     <button className="btn btn-blue mb-5" onClick={() => {
-                        fetch("http://localhost:5000/calibration", {
+                        fetch(`${import.meta.env.VITE_SERVER_URL}/calibration`, {
                             method:"POST", 
                             headers:{
                                 'Content-Type': 'application/json'
@@ -190,7 +190,7 @@ const App: React.FC = () => {
                                 fdata.append('xWidth', String(xWidth));
                                 fdata.append('yh', String(cropData.y));
                                 fdata.append('yb', String(cropData.y + cropData.height));
-                                fetch('http://localhost:5000/analyse', {    
+                                fetch(`${import.meta.env.VITE_SERVER_URL}/analyse`, {    
                                     method: 'POST',
                                     body: fdata
                                 })
@@ -212,7 +212,7 @@ const App: React.FC = () => {
                                 fdata.append('xWidth', String(xWidth));
                                 fdata.append('yh', String(cropData.y));
                                 fdata.append('yb', String(cropData.y + cropData.height));
-                                fetch('http://localhost:5000/analyse', {    
+                                fetch(`${import.meta.env.VITE_SERVER_URL}/analyse`, {    
                                     method: 'POST',
                                     body: fdata
                                 })
