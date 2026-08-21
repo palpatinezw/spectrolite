@@ -15,6 +15,8 @@ spectro-cli/dist-ssr
 spectro-cli/*.local
 
 spectro-cli/.env
+spectro-cli/.env.development
+spectro-cli/.env.production
 
 sshkey
 
