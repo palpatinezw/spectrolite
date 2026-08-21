@@ -15,6 +15,10 @@ spectro-cli/dist
 spectro-cli/dist-ssr
 spectro-cli/*.local
 
+spectro-cli/.env
+
+sshkey
+
 # Editor directories and files
 spectro-cli/.vscode/*
 spectro-cli/!.vscode/extensions.json
