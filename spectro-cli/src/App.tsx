@@ -81,7 +81,7 @@ const App: React.FC = () => {
                 <div className="border p-4 rounded">
                     <h2 className="text-2xl">Calibration</h2>
                     <p>Nombre de calibrations: {nbCalib}</p>
-
+                    <p>Astuce: Toutes les images doivent avoir les mêmes dimensions que l'image de configuration.</p>
                     {[...Array(nbCalib)].map((_, i) => (
                         <div key={i} className="mb-4 border rounded p-2 bg-gray-200">
                             <h3 className="text-xl">Calibration {i + 1}</h3>
@@ -127,7 +127,7 @@ const App: React.FC = () => {
                                             setAnalyseData(newAnalyseData);
                                             console.log("New analyse data:", newAnalyseData);
                                         })
-                                        .catch(error => console.error('Error:', error));
+                                        .catch((error) => {console.error('Error:', error); alert("Erreur lors de l'analyse de l'image. Veuillez réessayer.")});
                                     }}>
                                         Analyse
                                     </button>
@@ -158,7 +158,10 @@ const App: React.FC = () => {
                             setIntercept(data.intercept)
                             setCookie("slope", data.slope)
                             setCookie("intercept", data.intercept)
-                        }).catch(error => console.error('Error:', error));
+                        }).catch((error) => {
+                            console.error('Error:', error);
+                            alert("Erreur lors de la calibration. Veuillez réessayer.");
+                        });
                     }}>Calibrate</button>
                     {slope != 0 && 
                         <div className="border rounded mb-5">
@@ -199,7 +202,10 @@ const App: React.FC = () => {
                                     setBlancData(data);
                                     console.log("New blanc data:", data);
                                 })
-                                .catch(error => console.error('Error:', error));
+                                .catch((error) => {
+                                    console.error('Error:', error);
+                                    alert("Erreur lors de l'analyse de l'image. Veuillez réessayer.");
+                                });
                             }}/>
                             {blancData.length > 0 && <p className="text-sm mt-2">[✓] Analysed</p>}
                         </div>
@@ -221,7 +227,10 @@ const App: React.FC = () => {
                                     setSolutionData(data);
                                     console.log("New solution data:", data);
                                 })
-                                .catch(error => console.error('Error:', error));
+                                .catch((error) => {
+                                    console.error('Error:', error);
+                                    alert("Erreur lors de l'analyse de l'image. Veuillez réessayer.");
+                                });
                             }}/>
                             {solutionData.length > 0 && <p className="text-sm mt-2">[✓] Analysed</p>}
                         </div>
@@ -231,7 +240,7 @@ const App: React.FC = () => {
 
                     <button className="btn btn-blue mb-5 mt-5" onClick={() => {
                         if (solutionName === "" || blancData.length === 0 || solutionData.length === 0) {
-                            alert("Veuillez remplir tous les champs avant d'analyser.");
+                            alert("Veuillez remplir tous les champs avant d'analyser. Si une image est en cours d'analyse, veuillez attendre la fin de l'analyse.");
                             return;
                         }
                         let tempAbsr = [...absorbances]
