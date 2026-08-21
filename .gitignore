@@ -11,7 +11,6 @@ spectro-cli/pnpm-debug.log*
 spectro-cli/lerna-debug.log*
 
 spectro-cli/node_modules
-spectro-cli/dist
 spectro-cli/dist-ssr
 spectro-cli/*.local
 
